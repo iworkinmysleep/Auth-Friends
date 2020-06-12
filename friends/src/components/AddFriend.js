@@ -1,20 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axiosWithAuth from "../utils/axiosWithAuth";
 
-const AddFriend = () => {
+const AddFriend = (props) => {
 	const [addedFriend, setAddedFriend] = useState({
 		name: "",
 		age: "",
 		email: "",
 	});
 
-	const onChange = (e) => {
+	const handleChanges = (e) => {
 		setAddedFriend({
+			...addedFriend,
 			[e.target.name]: e.target.value,
 		});
 	};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		axiosWithAuth()
+			.post("/api/friends", addedFriend)
+			.then((res) => {
+				console.log(res);
+				props.setFriends([...props.friends, addedFriend]);
+			})
+			.catch((err) => console.log(err.response));
+		setAddedFriend({
+			name: "",
+			age: "",
+			email: "",
+		});
 	};
 
 	return (

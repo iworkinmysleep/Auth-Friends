@@ -1,49 +1,54 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import axios from "axios";
+import axiosWithAuth from "../utils/axiosWithAuth";
 
 const Login = () => {
+	const history = useHistory();
 	const [user, setUser] = useState({
-		userName: "",
+		username: "",
 		password: "",
 	});
 
 	const handleChanges = (e) => {
 		setUser({
+			...user,
 			[e.target.name]: e.target.value,
 		});
 	};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		axios
-			.post("http://localhost:5000/api/login", user)
+		axiosWithAuth()
+			.post("/api/login", user)
 			.then((res) => {
 				console.log(res);
+				localStorage.setItem("token", res.data.payload);
+				history.push("/friendsList");
 			})
-			.catch((err) => console.error(err.message));
+			.catch((err) => console.error(err.response));
+		setUser({
+			...user,
+			username: "",
+			password: "",
+		});
 	};
 
 	return (
 		<form onSubmit={handleSubmit}>
-			<label htmlFor="userName">
-				User Name
-				<input
-					type="text"
-					name="userName"
-					placeholder="enter user name..."
-					value={user.userName}
-					onChange={handleChanges}></input>
-			</label>
-			<label htmlFor="password">
-				Password
-				<input
-					type="text"
-					name="password"
-					placeholder="enter password..."
-					value={user.password}
-					onChange={handleChanges}></input>
-			</label>
+			<input
+				type="text"
+				name="username"
+				placeholder="enter user name..."
+				value={user.username}
+				onChange={handleChanges}></input>
+
+			<input
+				type="text"
+				name="password"
+				placeholder="enter password..."
+				value={user.password}
+				onChange={handleChanges}></input>
+
 			<button type="submit">Log In</button>
 		</form>
 	);
